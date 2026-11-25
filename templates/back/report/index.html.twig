@@ -1,0 +1,148 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Signalements — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-flag"></i>
+                Signalements
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Signalements</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-hourglass-split"></i> Signalements ouverts</h3>
+            <span class="badge badge-warning">{{ rows|length }} ouvert{{ rows|length > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="admin-card-body" style="padding: 0;">
+            {% if rows is not empty %}
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th>Contenu signalé</th>
+                            <th>Motif</th>
+                            <th>Signalé par</th>
+                            <th>Date</th>
+                            <th style="width: 320px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            {% set report = row.report %}
+                            {% set target = row.target %}
+                            <tr{% if row.priority %} style="background: rgba(220, 53, 69, 0.06);"{% endif %}>
+                                <td><span class="badge badge-primary">#{{ report.id }}</span></td>
+                                <td>
+                                    <span class="badge badge-info">{{ report.targetType.label }} #{{ report.targetId }}</span>
+                                    {% if row.priority %}<span class="badge badge-danger">Prioritaire</span>{% endif %}
+                                    {% if target is null %}
+                                        <p style="color: var(--text-muted);">Contenu déjà supprimé.</p>
+                                    {% elseif report.targetType.value == 'comment' %}
+                                        {% if target.deleted %}
+                                            <p style="color: var(--text-muted);"><em>Commentaire supprimé par son auteur.</em></p>
+                                        {% else %}
+                                            <p style="white-space: pre-wrap; margin: 6px 0;">{{ target.content }}</p>
+                                            <small>
+                                                {% if target.author %}
+                                                    par {{ target.author.pseudonym }}
+                                                {% else %}
+                                                    par un utilisateur supprimé
+                                                {% endif %}
+                                                — {{ target.createdAt|date('d/m/Y H:i') }}
+                                                {% if target.parent %} · réponse au commentaire #{{ target.parent.id }}{% endif %}
+                                                {% if target.hidden %} · <strong>déjà masqué</strong>{% endif %}
+                                            </small>
+                                        {% endif %}
+                                        <br>
+                                        <a href="{{ path('app_memory_show', {'id': target.memory.id}) }}" style="color: var(--accent);">
+                                            <i class="bi bi-camera-reels"></i>
+                                            {{ target.memory.title|default('Souvenir #' ~ target.memory.id) }}
+                                        </a>
+                                    {% elseif report.targetType.value == 'memory' %}
+                                        {% set main = target.approvedPictures|first %}
+                                        {% if main and main.imageUrl %}
+                                            <a href="{{ main.imageUrl }}" target="_blank" rel="noopener"><img src="{{ main.imageUrl }}" class="img-thumbnail" alt="Photo du souvenir"></a>
+                                        {% endif %}
+                                        <p style="margin: 6px 0;"><strong>{{ target.title }}</strong></p>
+                                        <small style="white-space: pre-wrap;">{{ target.content|slice(0, 200)~(target.content|length > 200 ? '…' : '') }}</small>
+                                        <br>
+                                        <small>
+                                            {% if target.user %}par {{ target.user.pseudonym }}{% endif %}
+                                        </small>
+                                        <br>
+                                        <a href="{{ path('app_memory_show', {'id': target.id}) }}" style="color: var(--accent);">
+                                            <i class="bi bi-camera-reels"></i> Voir le souvenir
+                                        </a>
+                                    {% else %}
+                                        {% if target.imageUrl %}
+                                            <a href="{{ target.imageUrl }}" target="_blank" rel="noopener"><img src="{{ target.imageUrl }}" class="img-thumbnail" alt="Photo signalée"></a>
+                                        {% endif %}
+                                        <br>
+                                        <small>
+                                            Photo {{ target.type }}
+                                            {% if target.uploadedBy %}· proposée par {{ target.uploadedBy.pseudonym }}{% endif %}
+                                            {% if target.copyrightHolder %}· crédit : {{ target.copyrightHolder }}{% endif %}
+                                        </small>
+                                        <br>
+                                        {% if target.memory %}
+                                            <a href="{{ path('app_memory_show', {'id': target.memory.id}) }}" style="color: var(--accent);">
+                                                <i class="bi bi-camera-reels"></i>
+                                                {{ target.memory.title|default('Souvenir #' ~ target.memory.id) }}
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ report.reason.label }}</strong>
+                                    {% if report.details %}<br><small style="white-space: pre-wrap;">{{ report.details }}</small>{% endif %}
+                                </td>
+                                <td>
+                                    {% if report.reporter %}
+                                        {{ report.reporter.pseudonym }}
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">Inconnu</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ report.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <form method="post" action="{{ path('app_report_ignore', {'id': report.id}) }}" style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('report' ~ report.id) }}">
+                                        {% set canHide = target is not null and report.targetType.value == 'comment' and not target.deleted and not target.hidden %}
+                                        {% set canDelete = target is not null and not (report.targetType.value == 'comment' and target.deleted) %}
+                                        {# Objet et message ne servent qu'à « Masquer » et « Supprimer » : « Ignorer » ne prévient pas l'auteur du contenu #}
+                                        {% if canHide or canDelete %}
+                                            {{ include('back/_moderation_fields.html.twig', {reason: report.reason.label, key: report.id}) }}
+                                        {% endif %}
+                                        <div class="action-buttons">
+                                            {% if canHide %}
+                                                <button type="submit" formaction="{{ path('app_report_hide', {'id': report.id}) }}" class="btn btn-sm btn-warning"><i class="bi bi-eye-slash"></i> Masquer</button>
+                                            {% endif %}
+                                            {% if canDelete %}
+                                                <button type="submit" formaction="{{ path('app_report_delete', {'id': report.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer définitivement ce contenu ?');"><i class="bi bi-trash"></i> Supprimer</button>
+                                            {% endif %}
+                                            <button type="submit" formaction="{{ path('app_report_ignore', {'id': report.id}) }}" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Ignorer</button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-check2-circle"></i>
+                    <h4>Aucun signalement ouvert</h4>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

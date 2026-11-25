@@ -1,0 +1,279 @@
+{# templates/memory/edit.html.twig #}
+
+{{ form_start(form, {'attr': {'class': 'admin-form', 'enctype': 'multipart/form-data'}}) }}
+
+{# ================== Erreurs globales ================== #}
+{% if not form.vars.valid %}
+    <div class="alert alert-danger">
+        {{ form_errors(form) }}
+    </div>
+{% endif %}
+
+{# ================== Informations générales ================== #}
+<div class="form-section">
+    <h4 class="form-section-title">
+        <i class="bi bi-info-circle"></i>
+        Informations générales
+    </h4>
+
+    {{ form_row(form.title) }}
+    {{ form_row(form.content) }}
+
+    <div class="form-row">
+        {{ form_row(form.picture_date) }}
+        {{ form_row(form.year) }}
+    </div>
+    <small class="form-text" style="margin-top: -1rem; margin-bottom: 1rem; display: block;">
+        <i class="bi bi-info-circle"></i>
+        Renseignez la date exacte si elle est connue, sinon seulement l'année (ex. 2000). Si la date exacte est renseignée, l'année en est déduite.
+        Pour repasser d'une date exacte à une année seule, videz la date.
+    </small>
+</div>
+
+{# ================== Associations ================== #}
+<div class="form-section">
+    <h4 class="form-section-title">
+        <i class="bi bi-link-45deg"></i>
+        Associations
+    </h4>
+
+    {{ form_row(form.user) }}
+
+    <div class="form-row">
+        {{ form_row(form.location) }}
+        {{ form_row(form.place) }}
+    </div>
+</div>
+
+{# ================== Photos ================== #}
+<div class="form-section">
+    <h4 class="form-section-title">
+        <i class="bi bi-images"></i>
+        Photos
+    </h4>
+
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        Au moins une photo est obligatoire pour chaque souvenir.
+    </div>
+
+    {# Photos existantes (édition uniquement) #}
+    {% set hasExistingPictures = memory is defined and memory.id is not null and memory.pictures is defined and memory.pictures|length > 0 %}
+    {% if hasExistingPictures %}
+        <div class="form-group mb-3">
+            <label>Photos existantes</label>
+            <div class="row g-2" id="existing-pictures-container">
+                {% for key, pictureForm in form.pictures %}
+                    {% set picture = pictureForm.vars.data %}
+                    {% if picture.id is not null %}
+                        <div class="col-md-4 existing-picture-item" data-picture-id="{{ picture.id }}">
+                            <div class="card">
+                                <img src="{{ picture.imageUrl }}" class="card-img-top" alt="{{ picture.type ?? 'Photo' }}" style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2">
+                                    {# Champ type éditable pour les photos existantes #}
+                                    {{ form_row(pictureForm.type) }}
+                                    {# Champ copyrightHolder éditable pour les photos existantes #}
+                                    {{ form_row(pictureForm.copyrightHolder) }}
+                                    {# Champ imageFile caché mais rendu (permet de remplacer l'image) #}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Remplacer l'image (optionnel) :</small>
+                                        {{ form_widget(pictureForm.imageFile, {'attr': {'class': 'form-control form-control-sm mt-1'}}) }}
+                                    </div>
+                                    
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-danger btn-sm w-100 mt-2 delete-existing-picture"
+                                        data-picture-id="{{ picture.id }}"
+                                        data-delete-url="{{ path('app_picture_delete', {'id': picture.id}) }}"
+                                        data-csrf-token="{{ csrf_token('delete' ~ picture.id) }}">
+                                        <i class="bi bi-trash"></i>
+                                        Supprimer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {# Collection pour ajouter de nouvelles photos #}
+    <div class="form-group mb-3">
+        <label>Ajouter de nouvelles photos</label>
+
+        <div
+            id="pictures-collection"
+            data-prototype="{{ form_widget(form.pictures.vars.prototype)|e('html_attr') }}"
+            data-index="{{ form.pictures|length }}">
+            {# Affiche les nouvelles photos déjà ajoutées mais non persistées #}
+            {% for key, pictureForm in form.pictures %}
+                {% set picture = pictureForm.vars.data %}
+                {% if picture.id is null %}
+                    <div class="card mb-3 p-3 new-picture-item">
+                        {{ form_row(pictureForm.imageFile) }}
+                        {{ form_row(pictureForm.type) }}
+                        {{ form_row(pictureForm.copyrightHolder) }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-picture">
+            <i class="bi bi-plus-circle"></i>
+            Ajouter une photo
+        </button>
+    </div>
+</div>
+
+{# ================== Actions ================== #}
+<div class="form-actions">
+    <button type="submit" class="btn btn-success">
+        <i class="bi bi-check-circle"></i>
+        {{ button_label|default('Enregistrer') }}
+    </button>
+    <a href="{{ path('app_memory_index') }}" class="btn btn-secondary">
+        <i class="bi bi-x-circle"></i>
+        Annuler
+    </a>
+</div>
+
+{{ form_rest(form) }}
+{{ form_end(form) }}
+
+{# ================== JS pour gérer les photos ================== #}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const collection = document.getElementById('pictures-collection');
+    const addButton = document.getElementById('add-picture');
+    const existingPicturesContainer = document.getElementById('existing-pictures-container');
+
+    // Index basé sur le nombre total de pictures dans le formulaire (existantes + nouvelles)
+    let index = parseInt(collection.dataset.index) || 0;
+
+    // Compte le nombre total de photos (existantes + nouvelles)
+    const countTotalPictures = () => {
+        const existingCount = existingPicturesContainer 
+            ? existingPicturesContainer.querySelectorAll('.existing-picture-item').length 
+            : 0;
+        const newCount = collection.querySelectorAll('.new-picture-item').length;
+        return existingCount + newCount;
+    };
+
+    // Met à jour les boutons de suppression
+    const updateDeleteButtons = () => {
+        const totalPictures = countTotalPictures();
+        const canDelete = totalPictures > 1;
+
+        // Boutons pour les photos existantes
+        if (existingPicturesContainer) {
+            const existingDeleteButtons = existingPicturesContainer.querySelectorAll('.delete-existing-picture');
+            existingDeleteButtons.forEach(btn => {
+                btn.disabled = !canDelete;
+                btn.title = canDelete ? '' : 'Au moins une photo est obligatoire';
+            });
+        }
+
+        // Boutons pour les nouvelles photos
+        const newDeleteButtons = collection.querySelectorAll('.btn-danger');
+        newDeleteButtons.forEach(btn => {
+            btn.disabled = !canDelete;
+            btn.title = canDelete ? '' : 'Au moins une photo est obligatoire';
+        });
+    };
+
+    // Gestion de la suppression des photos EXISTANTES (via AJAX)
+    if (existingPicturesContainer) {
+        existingPicturesContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-existing-picture')) {
+                const btn = e.target.closest('.delete-existing-picture');
+                
+                if (countTotalPictures() <= 1) {
+                    alert('Impossible de supprimer la dernière photo. Un souvenir doit contenir au moins une photo.');
+                    return;
+                }
+
+                if (!confirm('Voulez-vous vraiment supprimer cette photo ?')) {
+                    return;
+                }
+
+                const pictureItem = btn.closest('.existing-picture-item');
+                const deleteUrl = btn.dataset.deleteUrl;
+                const csrfToken = btn.dataset.csrfToken;
+
+                // Appel AJAX pour supprimer la photo
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: `_token=${encodeURIComponent(csrfToken)}`
+                })
+                .then(async response => {
+                    if (response.ok) {
+                        pictureItem.remove();
+                        updateDeleteButtons();
+                    } else {
+                        const data = await response.json().catch(() => ({}));
+                        alert(data.error || 'Erreur lors de la suppression de la photo.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la suppression de la photo.');
+                });
+            }
+        });
+    }
+
+    // Gestion de l'ajout de nouvelles photos
+    addButton.addEventListener('click', () => {
+        const prototype = collection.dataset.prototype;
+        const newForm = prototype.replace(/__name__/g, index);
+
+        const div = document.createElement('div');
+        div.classList.add('card', 'mb-3', 'p-3', 'new-picture-item');
+        div.innerHTML = newForm;
+
+        collection.appendChild(div);
+        index++;
+
+        updateRemoveButtons();
+        updateDeleteButtons();
+    });
+
+    // Gestion de la suppression des NOUVELLES photos (pas encore sauvegardées)
+    const updateRemoveButtons = () => {
+        const newPictureItems = collection.querySelectorAll('.new-picture-item');
+        
+        newPictureItems.forEach(item => {
+            let removeBtn = item.querySelector('.btn-danger');
+            
+            if (!removeBtn) {
+                removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.classList.add('btn', 'btn-danger', 'btn-sm', 'mt-2');
+                removeBtn.innerHTML = '<i class="bi bi-trash"></i> Retirer';
+                item.appendChild(removeBtn);
+            }
+
+            removeBtn.onclick = () => {
+                if (countTotalPictures() <= 1) {
+                    alert('Impossible de supprimer la dernière photo. Un souvenir doit contenir au moins une photo.');
+                    return;
+                }
+                item.remove();
+                updateRemoveButtons();
+                updateDeleteButtons();
+            };
+        });
+        
+        updateDeleteButtons();
+    };
+
+    // Initialisation
+    updateRemoveButtons();
+    updateDeleteButtons();
+});
+</script>

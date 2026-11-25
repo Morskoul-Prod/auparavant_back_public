@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Auparavant</title>
+    <meta name="description" content="{{ description }}">
+    <link rel="canonical" href="{{ canonicalUrl }}">
+
+    <meta property="og:site_name" content="Auparavant">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:type" content="{{ ogType }}">
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:description" content="{{ description }}">
+    <meta property="og:url" content="{{ canonicalUrl }}">
+    {% if image %}
+    <meta property="og:image" content="{{ image }}">
+    {% endif %}
+    <meta name="twitter:card" content="{{ image ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ title }}">
+    <meta name="twitter:description" content="{{ description }}">
+    {% if image %}
+    <meta name="twitter:image" content="{{ image }}">
+    {% endif %}
+
+    {# Les visiteurs vont sur l'application ; les robots (qui ne suivent pas le JavaScript) lisent cette page #}
+    <script>window.location.replace({{ canonicalUrl|json_encode|raw }});</script>
+</head>
+<body>
+    <main>
+        <h1>{{ heading }}</h1>
+        {% if image %}
+        <img src="{{ image }}" alt="{{ heading }}" width="600">
+        {% endif %}
+        {% if details %}
+        <p>{{ details|join(' · ') }}</p>
+        {% endif %}
+        <p>{{ description }}</p>
+        {% if memories %}
+        <ul>
+            {% for memory in memories %}
+            <li><a href="{{ memory.url }}">{{ memory.title }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <p><a href="{{ canonicalUrl }}">Voir sur Auparavant</a></p>
+    </main>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Auparavant Admin{% endblock %}</title>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('css/pictures/favicon.ico') }}" type="image/x-icon">
+    
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    {% block body %}
+    {% if app.user %}
+        {# Interface admin avec sidebar pour les utilisateurs connectés #}
+        <div class="admin-wrapper">
+            <!-- Sidebar -->
+            <aside class="admin-sidebar">
+                <div class="sidebar-brand">
+                    <img src="{{ asset('css/pictures/appareilphotovintage.png') }}" alt="Auparavant">
+                    <h2>Auparavant<span>Administration</span></h2>
+                </div>
+                
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Navigation</div>
+                        <ul>
+                            <li class="nav-item">
+                                <a href="{{ path('app_main') }}" class="nav-link {% if app.request.attributes.get('_route') == 'app_main' %}active{% endif %}">
+                                    <i class="bi bi-grid-1x2"></i>
+                                    <span>Tableau de bord</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title">Contenu</div>
+                        <ul>
+                            {% if is_granted('ROLE_ADMIN') %}
+                            <li class="nav-item">
+                                <a href="{{ path('app_memory_index') }}" class="nav-link {% if 'memory' in app.request.attributes.get('_route') %}active{% endif %}">
+                                    <i class="bi bi-camera-reels"></i>
+                                    <span>Souvenirs</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ path('app_picture_index') }}" class="nav-link {% if 'picture' in app.request.attributes.get('_route') %}active{% endif %}">
+                                    <i class="bi bi-images"></i>
+                                    <span>Images</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if is_granted('ROLE_MODERATOR') %}
+                            <li class="nav-item">
+                                <a href="{{ path('app_moderation_index') }}" class="nav-link {% if 'moderation' in app.request.attributes.get('_route') %}active{% endif %}">
+                                    <i class="bi bi-shield-check"></i>
+                                    <span>Modération</span>
+                                    {% set pendingCount = pending_moderation_count() %}
+                                    <span class="nav-badge js-moderation-badge" id="moderation-badge" data-url="{{ path('app_moderation_count') }}"{% if pendingCount == 0 %} hidden{% endif %}>{{ pendingCount }}</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ path('app_report_index') }}" class="nav-link {% if 'report' in app.request.attributes.get('_route') %}active{% endif %}">
+                                    <i class="bi bi-flag"></i>
+                                    <span>Signalements</span>
+                                    {% set openReports = open_reports_count() %}
+                                    {% if openReports > 0 %}<span class="nav-badge">{{ openReports }}</span>{% endif %}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ path('app_comment_hidden_index') }}" class="nav-link {% if 'app_comment' in app.request.attributes.get('_route') %}active{% endif %}">
+                                    <i class="bi bi-eye-slash"></i>
+                                    <span>Commentaires masqués</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if is_granted('ROLE_ADMIN') %}
+                            <li class="nav-item">
+                                <a href="{{ path('app_location_index') }}" class="nav-link {% if 'location' in app.request.attributes.get('_route') %}active{% endif %}">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <span>Localisations</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ path('app_place_index') }}" class="nav-link {% if 'place' in app.request.attributes.get('_route') %}active{% endif %}">
+                                    <i class="bi bi-building"></i>
+                                    <span>Lieux</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <div class="nav-section">
+                        <div class="nav-section-title">Gestion</div>
+                        <ul>
+                            <li class="nav-item">
+                                <a href="{{ path('app_user_index') }}" class="nav-link {% if 'user' in app.request.attributes.get('_route') %}active{% endif %}">
+                                    <i class="bi bi-people"></i>
+                                    <span>Utilisateurs</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </nav>
+            </aside>
+            
+            <!-- Main Content -->
+            <div class="admin-main">
+                <!-- Header -->
+                <header class="admin-header">
+                    <div class="header-search">
+                        <i class="bi bi-search"></i>
+                        <input type="text" placeholder="Rechercher...">
+                    </div>
+                    
+                    <div class="header-user">
+                        <div class="header-user-info">
+                            <div class="header-user-name">{{ app.user.pseudonym }}</div>
+                            <div class="header-user-role">{{ is_granted('ROLE_ADMIN') ? 'Administrateur' : 'Modérateur' }}</div>
+                        </div>
+                        <div class="header-avatar">
+                            {{ app.user.pseudonym|slice(0, 1)|upper }}
+                        </div>
+                        <a href="{{ path('app_logout') }}" class="btn btn-sm btn-outline" title="Déconnexion">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </a>
+                    </div>
+                </header>
+                
+                <!-- Content -->
+                <main class="admin-content">
+                    {# Flash messages #}
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ label }}">
+                                <i class="bi bi-{% if label == 'success' %}check-circle{% elseif label == 'danger' %}exclamation-triangle{% elseif label == 'warning' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                    
+                    {% block content %}{% endblock %}
+                </main>
+                
+                <!-- Footer -->
+                <footer class="admin-footer">
+                    <p>&copy; {{ "now"|date("Y") }} Auparavant — Interface d'administration</p>
+                </footer>
+            </div>
+        </div>
+    {% endif %}
+    {% endblock %}
+    
+    {% block javascripts %}{% endblock %}
+    {% if is_granted('ROLE_MODERATOR') %}
+        <script src="{{ asset('js/moderation-badge.js') }}" defer></script>
+    {% endif %}
+</body>
+</html>

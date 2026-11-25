@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Utilisateurs — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-people"></i>
+                Utilisateurs
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Utilisateurs</span>
+            </div>
+        </div>
+        <a href="{{ path('app_user_new') }}" class="btn-add">
+            <i class="bi bi-plus-lg"></i>
+            Nouvel utilisateur
+        </a>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-list-ul"></i> Liste des utilisateurs</h3>
+            <span class="badge badge-success">{{ users|length }} utilisateur(s)</span>
+        </div>
+        <div class="admin-card-body" style="padding: 0;">
+            {% if users is not empty %}
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th>Nom complet</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td><span class="badge badge-primary">#{{ user.id }}</span></td>
+                                <td>
+                                    <div class="d-flex align-center gap-1">
+                                        <div class="header-avatar" style="width: 36px; height: 36px; font-size: 0.75rem;">
+                                            {{ user.pseudonym|slice(0, 1)|upper }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ user.pseudonym }}</strong>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% for role in user.roles %}
+                                        {% if role == 'ROLE_ADMIN' %}
+                                            <span class="badge badge-danger">Admin</span>
+                                        {% elseif role == 'ROLE_USER' %}
+                                            <span class="badge badge-info">Utilisateur</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">{{ role }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_user_show', {'id': user.id}) }}" class="btn btn-icon btn-secondary" title="Voir">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-icon btn-warning" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-people"></i>
+                    <h4>Aucun utilisateur</h4>
+                    <p>Créez le premier utilisateur du système</p>
+                    <a href="{{ path('app_user_new') }}" class="btn-add">
+                        <i class="bi bi-plus-lg"></i>
+                        Créer un utilisateur
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

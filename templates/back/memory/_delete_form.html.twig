@@ -1,0 +1,11 @@
+<form style="margin: 1rem 0; max-width: 480px;" method="post" action="{{ path('app_memory_delete', {'id': memory.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce souvenir ? Cette action est irréversible.');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ memory.id) }}">
+    {# L'auteur n'est prévenu que si quelqu'un d'autre supprime son souvenir #}
+    {% if memory.user is null or app.user.id != memory.user.id %}
+        {{ include('back/_moderation_fields.html.twig', {key: 'memory' ~ memory.id}) }}
+    {% endif %}
+    <button type="submit" class="btn btn-danger">
+        <i class="bi bi-trash"></i>
+        Supprimer ce souvenir
+    </button>
+</form>

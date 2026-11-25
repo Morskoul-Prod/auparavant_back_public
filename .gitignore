@@ -1,0 +1,41 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+###> vich/uploader-bundle ###
+/public/uploads/memories/
+###< vich/uploader-bundle ###
+
+###> Security - Private Keys and Certificates ###
+# Private keys and certificates - NEVER commit these!
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+###< Security - Private Keys and Certificates ###
+
+###> Other###
+.vscode/
+taches.todo
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###

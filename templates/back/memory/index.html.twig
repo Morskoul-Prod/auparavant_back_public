@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Souvenirs — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-camera-reels"></i>
+                Souvenirs
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Souvenirs</span>
+            </div>
+        </div>
+        <a href="{{ path('app_memory_new') }}" class="btn-add">
+            <i class="bi bi-plus-lg"></i>
+            Nouveau souvenir
+        </a>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-list-ul"></i> Liste des souvenirs</h3>
+            <span class="badge badge-primary">{{ memories|length }} enregistrement(s)</span>
+        </div>
+        <div class="admin-card-body" style="padding: 0;">
+            {% if memories is not empty %}
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th>Image</th>
+                            <th>Titre</th>
+                            <th>Lieu</th>
+                            <th>Localisation</th>
+                            <th>Date photo</th>
+                            <th>Auteur</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for memory in memories %}
+                            <tr>
+                                <td><span class="badge badge-primary">#{{ memory.id }}</span></td>
+                                <td>
+                                    {% set firstPicture = memory.pictures|first %}
+                                    {% if firstPicture %}
+                                        <img src="{{ firstPicture.imageUrl }}" class="img-thumbnail" alt="{{ memory.title }}" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% if memory.pictures|length > 1 %}
+                                            <span class="badge badge-info" style="font-size: 0.7rem; margin-left: 4px;">+{{ memory.pictures|length - 1 }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="img-thumbnail" style="display: flex; align-items: center; justify-content: center; background: var(--bg-input); width: 60px; height: 60px;">
+                                            <i class="bi bi-image" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ memory.title|default('Sans titre') }}</strong>
+                                    {% if memory.content %}
+                                        <br><small style="color: var(--text-muted);">{{ memory.content|slice(0, 50) }}{% if memory.content|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if memory.place %}
+                                        <span class="badge badge-warning">{{ memory.place.name }}</span>
+                                        <br><small style="color: var(--text-muted);">{{ memory.place.type.label }}</small>
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if memory.location %}
+                                        {{ memory.location.city }}
+                                        <br><small style="color: var(--text-muted);">{{ memory.location.zipcode }}</small>
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if memory.pictureDate %}
+                                        {{ memory.pictureDate|date('d/m/Y') }}
+                                    {% elseif memory.year %}
+                                        <span style="color: var(--text-muted);">~{{ memory.year }}</span>
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if memory.user %}
+                                        {{ memory.user.pseudonym }}
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_memory_show', {'id': memory.id}) }}" class="btn btn-icon btn-secondary" title="Voir">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_memory_edit', {'id': memory.id}) }}" class="btn btn-icon btn-warning" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-camera-reels"></i>
+                    <h4>Aucun souvenir</h4>
+                    <p>Commencez par créer votre premier souvenir</p>
+                    <a href="{{ path('app_memory_new') }}" class="btn-add">
+                        <i class="bi bi-plus-lg"></i>
+                        Créer un souvenir
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

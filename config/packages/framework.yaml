@@ -1,0 +1,65 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+
+    # La session n'est démarrée que si on la lit ou si on y écrit.
+    session: true
+
+    #esi: true
+    #fragments: true
+
+    # Anti-spam : 5 commentaires par minute et par utilisateur (voir CommentController::create)
+    rate_limiter:
+        comment_creation:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 minute'
+        # Anti brute force du mot de passe actuel (email, mot de passe, suppression du compte) :
+        # un compteur par utilisateur et un par IP (voir Service/AccountGuard)
+        account_security_user:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+        account_security_ip:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '15 minutes'
+        # Mot de passe oublié (POST /api/password/forgot et /reset) : par IP
+        password_forgot:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+        password_reset:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '15 minutes'
+        # Confirmation de l'adresse : validation du lien (par IP) et renvoi du lien (par utilisateur)
+        email_verify:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '15 minutes'
+        email_resend:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '15 minutes'
+        # Avis des testeurs (POST /api/feedback) : par IP
+        feedback:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 hour'
+        # Renouvellement de la session (POST /api/token/refresh) : par IP
+        token_refresh:
+            policy: 'sliding_window'
+            limit: 30
+            interval: '1 minute'
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file
+        # Compteurs du limiteur : pool dédié (supprimé avant chaque test, cf. ApiTestCase)
+        cache:
+            pools:
+                cache.rate_limiter:
+                    adapter: cache.adapter.filesystem

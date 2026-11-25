@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier l'image — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-pencil"></i>
+                Modifier l'image
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <a href="{{ path('app_picture_index') }}">Images</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>#{{ picture.id }}</span>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <a href="{{ path('app_picture_show', {'id': picture.id}) }}" class="btn btn-secondary">
+                <i class="bi bi-eye"></i>
+                Voir
+            </a>
+            <a href="{{ path('app_picture_index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Retour
+            </a>
+        </div>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-image"></i> Modifier l'image</h3>
+        </div>
+        <div class="admin-card-body">
+            {% if picture.imageName %}
+                <div class="text-center mb-3">
+                    <img src="{{ picture.imageUrl }}" class="img-preview" alt="Image actuelle" style="max-height: 200px;">
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Image actuelle</p>
+                </div>
+            {% endif %}
+            
+            {{ include('back/picture/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+        </div>
+    </div>
+    
+    <!-- Zone de danger -->
+    <div class="admin-card mt-3" style="border-color: rgba(139, 0, 0, 0.3);">
+        <div class="admin-card-header" style="background: rgba(139, 0, 0, 0.1);">
+            <h3 style="color: #CD5C5C;"><i class="bi bi-exclamation-triangle"></i> Zone de danger</h3>
+        </div>
+        <div class="admin-card-body">
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                La suppression de cette image est irréversible.
+            </p>
+            {{ include('back/picture/_delete_form.html.twig') }}
+        </div>
+    </div>
+{% endblock content %}

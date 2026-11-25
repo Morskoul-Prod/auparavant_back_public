@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle image — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-plus-circle"></i>
+                Nouvelle image
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <a href="{{ path('app_picture_index') }}">Images</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Nouveau</span>
+            </div>
+        </div>
+        <a href="{{ path('app_picture_index') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Retour à la liste
+        </a>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-image"></i> Télécharger une image</h3>
+        </div>
+        <div class="admin-card-body">
+            {{ include('back/picture/_form.html.twig') }}
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,33 @@
+{{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+    <div class="form-section">
+        <h4 class="form-section-title">
+            <i class="bi bi-building"></i>
+            Informations du lieu
+        </h4>
+        
+        <div class="form-row">
+            {{ form_row(form.name) }}
+            {{ form_row(form.type) }}
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <h4 class="form-section-title">
+            <i class="bi bi-geo-alt"></i>
+            Localisation
+        </h4>
+        
+        {{ form_row(form.location) }}
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle"></i>
+            {{ button_label|default('Enregistrer') }}
+        </button>
+        <a href="{{ path('app_place_index') }}" class="btn btn-secondary">
+            <i class="bi bi-x-circle"></i>
+            Annuler
+        </a>
+    </div>
+{{ form_end(form) }}

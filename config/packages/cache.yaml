@@ -1,0 +1,19 @@
+framework:
+    cache:
+        # Nom unique de l'application : sert à calculer des espaces de noms stables pour les clés de cache.
+        #prefix_seed: your_vendor_name/app_name
+
+        # Le cache « app » est stocké par défaut sur le système de fichiers.
+        # Les données de ce cache doivent survivre aux déploiements.
+        # Autres options possibles :
+
+        # Redis
+        #app: cache.adapter.redis
+        #default_redis_provider: redis://localhost
+
+        # APCu (déconseillé en cas d'écritures aléatoires intensives : la fragmentation mémoire peut dégrader les performances)
+        #app: cache.adapter.apcu
+
+        # Les pools à espace de noms utilisent par défaut le backend « app » ci-dessus
+        #pools:
+            #my.dedicated.cache: null

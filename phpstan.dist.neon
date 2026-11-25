@@ -1,0 +1,30 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-symfony/rules.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-doctrine/rules.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - src/Kernel.php
+        - tests/bootstrap.php
+    symfony:
+        # Conteneur compilé de l'environnement de dev : `php bin/console cache:warmup` avant de lancer PHPStan
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    ignoreErrors:
+        # Les propriétés d'entité sont nullables tant que l'objet n'est pas hydraté (`?string $titre = null`)
+        # alors que la colonne ou la relation ne l'est pas : écart voulu, courant avec Symfony / Doctrine
+        -
+            identifiers:
+                - doctrine.columnType
+                - doctrine.associationType
+            path: src/Entity
+        # Les tests répètent parfois la même assertion après une nouvelle requête (état du client modifié, ce que
+        # PHPStan ne voit pas) : « toujours vrai » n'est alors pas pertinent
+        -
+            identifier: method.alreadyNarrowedType
+            path: tests

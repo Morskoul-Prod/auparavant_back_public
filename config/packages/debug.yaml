@@ -1,0 +1,5 @@
+when@dev:
+    debug:
+        # Transmet les copies de données de VarDumper à un serveur centralisé pour inspecter les dumps en ligne de commande ou dans le navigateur.
+        # Voir la commande « server:dump » pour démarrer un nouveau serveur.
+        dump_destination: "tcp://%env(VAR_DUMPER_SERVER)%"

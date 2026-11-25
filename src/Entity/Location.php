@@ -1,0 +1,329 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\LocationRepository;
+use App\Service\Slug;
+use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[ORM\Entity(repositoryClass: LocationRepository::class)]
+#[ORM\Index(name: 'idx_location_address_id', columns: ['address_id'])]
+class Location
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    #[Groups(['get_location'])]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 50)]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'La région doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'La région ne peut pas dépasser {{ limit }} caractères.',
+    )]
+    #[Groups(['get_location'])]
+    private ?string $area = null;
+
+    #[ORM\Column(length: 30)]
+    #[Assert\Length(
+        min: 2,
+        max: 30,
+        minMessage: 'Le département doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le département ne peut pas dépasser {{ limit }} caractères.',
+    )]
+    #[Groups(['get_location'])]
+    private ?string $department = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Le quartier doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le quartier ne peut pas dépasser {{ limit }} caractères.',
+    )]
+    #[Groups(['get_location'])]
+    private ?string $district = null;
+
+    #[ORM\Column(length: 50)]
+    #[Assert\Length(
+        min: 5,
+        max: 50,
+        minMessage: 'Le numéro et le nom de la rue doivent comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le numéro et le nom de la rue ne peuvent pas dépasser {{ limit }} caractères.',
+    )]
+    #[Groups(['get_location'])]
+    private ?string $street = null;
+
+    #[ORM\Column(length: 50)]
+    #[Assert\Length(
+        min: 1,
+        max: 50,
+        minMessage: 'La ville doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'La ville ne peut pas dépasser {{ limit }} caractères.',
+    )]
+    #[Groups(['get_location'])]
+    private ?string $city = null;
+
+    #[ORM\Column]
+    #[Assert\Length(
+        min: 5,
+        max: 10,
+        minMessage: 'Le code postal doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le code postal ne peut pas dépasser {{ limit }} caractères.',
+    )]
+    #[Groups(['get_location'])]
+    private ?int $zipcode = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8)]
+    #[Groups(['get_location'])]
+    private ?string $latitude = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 11, scale: 8)]
+    #[Groups(['get_location'])]
+    private ?string $longitude = null;
+
+    // Identifiant stable de l'API Adresse (data.gouv.fr), ex. « 75056_8909_00023 ». Index non unique : doublons et lignes NULL possibles.
+    #[ORM\Column(name: 'address_id', length: 50, nullable: true)]
+    #[Assert\Length(
+        max: 50,
+        maxMessage: 'L\'identifiant d\'adresse ne peut pas dépasser {{ limit }} caractères.',
+    )]
+    #[Groups(['get_location'])]
+    #[SerializedName('address_id')]
+    private ?string $addressId = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\OneToMany(mappedBy: 'location', targetEntity: Memory::class, orphanRemoval: true)]
+    /** @var Collection<int, Memory> */
+    private Collection $memories;
+
+    #[ORM\OneToMany(mappedBy: 'location', targetEntity: Place::class, orphanRemoval: true)]
+    /** @var Collection<int, Place> */
+    private Collection $places;
+
+    public function __construct()
+    {
+        $this->createdAt = new DateTimeImmutable();
+        $this->memories = new ArrayCollection();
+        $this->places = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getArea(): ?string
+    {
+        return $this->area;
+    }
+
+    public function setArea(string $area): static
+    {
+        $this->area = $area;
+
+        return $this;
+    }
+
+    public function getDepartment(): ?string
+    {
+        return $this->department;
+    }
+
+    public function setDepartment(string $department): static
+    {
+        $this->department = $department;
+
+        return $this;
+    }
+
+    public function getDistrict(): ?string
+    {
+        return $this->district;
+    }
+
+    public function setDistrict(?string $district): static
+    {
+        $this->district = $district;
+
+        return $this;
+    }
+
+    public function getStreet(): ?string
+    {
+        return $this->street;
+    }
+
+    public function setStreet(string $street): static
+    {
+        $this->street = $street;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    /** Ville sous forme d'adresse (« rennes ») : /lieux/{citySlug} */
+    #[Groups(['get_location'])]
+    #[SerializedName('citySlug')]
+    public function getCitySlug(): string
+    {
+        return Slug::of($this->city);
+    }
+
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getZipcode(): ?int
+    {
+        return $this->zipcode;
+    }
+
+    public function setZipcode(int $zipcode): static
+    {
+        $this->zipcode = $zipcode;
+
+        return $this;
+    }
+
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(string $latitude): static
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(string $longitude): static
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getAddressId(): ?string
+    {
+        return $this->addressId;
+    }
+
+    public function setAddressId(?string $addressId): static
+    {
+        $this->addressId = $addressId;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Memory>
+     */
+    public function getMemories(): Collection
+    {
+        return $this->memories;
+    }
+
+    public function addMemory(Memory $memory): static
+    {
+        if (!$this->memories->contains($memory)) {
+            $this->memories->add($memory);
+            $memory->setLocation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMemory(Memory $memory): static
+    {
+        if ($this->memories->removeElement($memory)) {
+            // met le côté propriétaire à null (sauf s'il a déjà changé)
+            if ($memory->getLocation() === $this) {
+                $memory->setLocation(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Place>
+     */
+    public function getPlaces(): Collection
+    {
+        return $this->places;
+    }
+
+    public function addPlace(Place $place): static
+    {
+        if (!$this->places->contains($place)) {
+            $this->places->add($place);
+            $place->setLocation($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlace(Place $place): static
+    {
+        if ($this->places->removeElement($place)) {
+            // met le côté propriétaire à null (sauf s'il a déjà changé)
+            if ($place->getLocation() === $this) {
+                $place->setLocation(null);
+            }
+        }
+
+        return $this;
+    }
+}

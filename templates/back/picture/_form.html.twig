@@ -1,0 +1,28 @@
+{{ form_start(form, {'attr': {'class': 'admin-form', 'enctype': 'multipart/form-data'}}) }}
+<div class="form-section">
+	<h4 class="form-section-title">
+		<i class="bi bi-image"></i>
+		Image
+	</h4>
+
+	{{ form_row(form.imageFile) }}
+	{{ form_row(form.type) }}
+	<small class="form-text" style="margin-top: -1rem; display: block;">
+		<i class="bi bi-info-circle"></i>
+		<strong>Autre</strong>
+		: photo complémentaire
+	</small>
+</div>
+
+<div class="form-actions">
+	<button type="submit" class="btn btn-success">
+		<i class="bi bi-check-circle"></i>
+		{{ button_label|default('Enregistrer') }}
+	</button>
+	<a href="{{ path('app_picture_index') }}" class="btn btn-secondary">
+		<i class="bi bi-x-circle"></i>
+		Annuler
+	</a>
+</div>
+{{ form_end(form) }}
+

@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Localisations — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-geo-alt"></i>
+                Localisations
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Localisations</span>
+            </div>
+        </div>
+        <a href="{{ path('app_location_new') }}" class="btn-add">
+            <i class="bi bi-plus-lg"></i>
+            Nouvelle localisation
+        </a>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-list-ul"></i> Liste des localisations</h3>
+            <span class="badge badge-info">{{ locations|length }} adresse(s)</span>
+        </div>
+        <div class="admin-card-body" style="padding: 0;">
+            {% if locations is not empty %}
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th>Ville</th>
+                            <th>Rue</th>
+                            <th>Code postal</th>
+                            <th>Département</th>
+                            <th>Région</th>
+                            <th>Coordonnées</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for location in locations %}
+                            <tr>
+                                <td><span class="badge badge-primary">#{{ location.id }}</span></td>
+                                <td><strong>{{ location.city|default('—') }}</strong></td>
+                                <td>{{ location.street|default('—') }}</td>
+                                <td><span class="badge badge-info">{{ location.zipcode|default('—') }}</span></td>
+                                <td>{{ location.department|default('—') }}</td>
+                                <td>{{ location.area|default('—') }}</td>
+                                <td>
+                                    {% if location.latitude and location.longitude %}
+                                        <small style="color: var(--text-muted);">
+                                            <i class="bi bi-pin-map"></i>
+                                            {{ location.latitude|number_format(4) }}, {{ location.longitude|number_format(4) }}
+                                        </small>
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_location_show', {'id': location.id}) }}" class="btn btn-icon btn-secondary" title="Voir">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_location_edit', {'id': location.id}) }}" class="btn btn-icon btn-warning" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-geo-alt"></i>
+                    <h4>Aucune localisation</h4>
+                    <p>Ajoutez votre première adresse</p>
+                    <a href="{{ path('app_location_new') }}" class="btn-add">
+                        <i class="bi bi-plus-lg"></i>
+                        Créer une localisation
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

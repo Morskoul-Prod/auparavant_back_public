@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ place.name }}
+	— Auparavant Admin
+{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<div>
+			<h1 class="page-title">
+				<i class="bi bi-building"></i>
+				{{ place.name|default('Lieu #' ~ place.id) }}
+			</h1>
+			<div class="breadcrumb">
+				<a href="{{ path('app_main') }}">Accueil</a>
+				<i class="bi bi-chevron-right"></i>
+				<a href="{{ path('app_place_index') }}">Lieux</a>
+				<i class="bi bi-chevron-right"></i>
+				<span>#{{ place.id }}</span>
+			</div>
+		</div>
+		<div class="action-buttons">
+			<a href="{{ path('app_place_edit', {'id': place.id}) }}" class="btn btn-warning">
+				<i class="bi bi-pencil"></i>
+				Modifier
+			</a>
+			<a href="{{ path('app_place_index') }}" class="btn btn-secondary">
+				<i class="bi bi-arrow-left"></i>
+				Retour
+			</a>
+		</div>
+	</div>
+
+	<div class="admin-card">
+		<div class="admin-card-header">
+			<h3>
+				<i class="bi bi-info-circle"></i>
+				Informations</h3>
+		</div>
+		<div class="admin-card-body">
+			<table class="admin-table" style="margin: -1.5rem;">
+				<tbody>
+					<tr>
+						<th style="width: 150px;">ID</th>
+						<td>
+							<span class="badge badge-primary">#{{ place.id }}</span>
+						</td>
+					</tr>
+					<tr>
+						<th>Nom</th>
+						<td>
+							<strong>{{ place.name|default('—') }}</strong>
+						</td>
+					</tr>
+					<tr>
+						<th>Type</th>
+						<td>
+							<span class="badge badge-warning">{{ place.type.label|default('—') }}</span>
+						</td>
+					</tr>
+					<tr>
+						<th>Localisation</th>
+						<td>
+							{% if place.location %}
+								<a href="{{ path('app_location_show', {'id': place.location.id}) }}" class="btn btn-sm btn-secondary">
+									<i class="bi bi-geo-alt"></i>
+									{{ place.location.street }},
+									{{ place.location.zipcode }}
+									{{ place.location.city }}
+								</a>
+							{% else %}
+								<span style="color: var(--text-muted);">Aucune localisation</span>
+							{% endif %}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Zone des souvenirs -->
+	<div class="admin-card mt-3" style="border-color: rgba(139, 81, 0, 0.3);">
+		<div class="admin-card-header" style="background: rgba(139, 100, 0, 0.1);">
+			<h3>
+				<i class="bi bi-journal-text"></i>
+				Souvenirs associés
+			</h3>
+		</div>
+		<div class="admin-card-body">
+			{% for memory in place.memories %}
+				<a href="{{ path('app_memory_show', {'id': memory.id}) }}" target="_blank">{{ memory.title }}</a>
+			{% else %}
+				<p>Aucun souvenir.</p>
+			{% endfor %}
+		</div>
+	</div>
+
+	<!-- Zone de danger -->
+	<div class="admin-card mt-3" style="border-color: rgba(139, 0, 0, 0.3);">
+		<div class="admin-card-header" style="background: rgba(139, 0, 0, 0.1);">
+			<h3 style="color: #CD5C5C;">
+				<i class="bi bi-exclamation-triangle"></i>
+				Zone de danger</h3>
+		</div>
+		<div class="admin-card-body">
+			<p style="color: var(--text-secondary); margin-bottom: 1rem;">
+				La suppression de ce lieu est irréversible.
+			</p>
+			{{ include('back/place/_delete_form.html.twig') }}
+		</div>
+	</div>
+{% endblock content %}

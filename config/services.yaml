@@ -1,0 +1,70 @@
+# Ce fichier est le point d'entrée de la configuration des services de l'application.
+# Les fichiers du sous-dossier packages/ configurent les dépendances.
+
+# Paramètres qui n'ont pas à changer d'une machine de déploiement à l'autre
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+
+    # Expéditeur des emails transactionnels (domaine authentifié chez Brevo : SPF, DKIM, DMARC)
+    mail_from_address: 'contact@auparavant.fr'
+    mail_from_name: 'Auparavant'
+    # Durée de vie du refresh token (secondes) : 30 jours, glissants à chaque rotation
+    refresh_token_ttl: 2592000
+    # Valeurs par défaut des variables d'environnement de la session (surchargées par .env en local)
+    env(JWT_TTL): '600'
+    env(CORS_ALLOWED_ORIGINS): 'http://localhost:5173'
+    env(FRONT_URL): 'http://localhost:5173'
+    env(REFRESH_COOKIE_SECURE): 'true'
+
+services:
+    # configuration par défaut des services de *ce* fichier
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # rend les classes de src/ utilisables comme services
+    # crée un service par classe, dont l'id est le nom complet de la classe
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Kernel.php'
+
+    App\Entity\:
+        resource: '../src/Entity/'
+
+    App\Controller\SharePageController:
+        arguments:
+            $frontUrl: '%env(trim:string:FRONT_URL)%'
+
+    App\Service\PasswordResetService:
+        arguments:
+            $frontUrl: '%env(trim:string:FRONT_URL)%'
+
+    App\Service\EmailChangeService:
+        arguments:
+            $frontUrl: '%env(trim:string:FRONT_URL)%'
+
+    App\Service\EmailVerificationService:
+        arguments:
+            $frontUrl: '%env(trim:string:FRONT_URL)%'
+
+    App\Service\AllowedOrigins:
+        arguments:
+            $origins: '%env(csv:CORS_ALLOWED_ORIGINS)%'
+
+    App\Service\RefreshTokenCookie:
+        arguments:
+            $secure: '%env(bool:REFRESH_COOKIE_SECURE)%'
+
+    App\Service\RefreshTokenManager:
+        arguments:
+            $ttlSeconds: '%refresh_token_ttl%'
+
+    acme_api.event.jwt_created_listener:
+        class: App\EventListener\AuthenticationSuccessListener
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
+
+    # ajouter d'autres définitions de services quand une configuration explicite est nécessaire
+    # attention : les dernières définitions *remplacent* toujours les précédentes

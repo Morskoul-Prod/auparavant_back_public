@@ -1,0 +1,54 @@
+/* Mise en place du CSS du back-office */
+
+.img-thumbnail {
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+}
+
+.img-edit {
+    height: 300px;
+    width: 300px;
+    object-fit: contain;
+
+}
+
+.navbar-logo {
+    max-width: 80px; /* Adjust the max-width to your preference */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.navbar-logo-flag {
+    height: 30px;
+    width: 30px;
+}
+
+.btn-mobile {
+    width: 60%;
+}
+
+.btn-delete {
+    width:100%;
+}
+
+.btn-dark-purple {
+    background-color : #7332f9;
+}
+
+@media screen and (min-width: 765px) {
+
+    .btn-mobile {
+        width: 100%;
+    }
+    .div-btn-delete {
+        margin-left : 20px;
+    }
+    .btn-delete {
+        width:80%;
+    }
+}
+
+.forgotten_password {
+    color: white;
+    text-decoration: none;
+}

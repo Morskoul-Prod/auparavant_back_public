@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ user.pseudonym }} — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-person"></i>
+                {{ user.pseudonym }}
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <a href="{{ path('app_user_index') }}">Utilisateurs</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>#{{ user.id }}</span>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i>
+                Modifier
+            </a>
+            <a href="{{ path('app_user_index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Retour
+            </a>
+        </div>
+    </div>
+    
+    <div class="d-flex gap-2" style="flex-wrap: wrap;">
+        <!-- Avatar -->
+        <div class="admin-card" style="flex: 0 0 200px;">
+            <div class="admin-card-body text-center" style="padding: 2rem;">
+                <div class="header-avatar" style="width: 100px; height: 100px; font-size: 2.5rem; margin: 0 auto 1rem;">
+                    {{ user.pseudonym|slice(0, 1)|upper }}
+                </div>
+                <h4 style="margin-bottom: 0.25rem;">{{ user.pseudonym }}</h4>
+                <p style="color: var(--text-muted); margin: 0;">{{ user.email }}</p>
+            </div>
+        </div>
+        
+        <!-- Informations -->
+        <div class="admin-card" style="flex: 1; min-width: 300px;">
+            <div class="admin-card-header">
+                <h3><i class="bi bi-info-circle"></i> Informations</h3>
+            </div>
+            <div class="admin-card-body">
+                <table class="admin-table" style="margin: -1.5rem;">
+                    <tbody>
+                        <tr>
+                            <th style="width: 150px;">ID</th>
+                            <td><span class="badge badge-primary">#{{ user.id }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>Pseudonyme</th>
+                            <td>{{ user.pseudonym }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Rôles</th>
+                            <td>
+                                {% for role in user.roles %}
+                                    {% if role == 'ROLE_ADMIN' %}
+                                        <span class="badge badge-danger">Administrateur</span>
+                                    {% elseif role == 'ROLE_USER' %}
+                                        <span class="badge badge-info">Utilisateur</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">{{ role }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Zone de danger -->
+    <div class="admin-card mt-3" style="border-color: rgba(139, 0, 0, 0.3);">
+        <div class="admin-card-header" style="background: rgba(139, 0, 0, 0.1);">
+            <h3 style="color: #CD5C5C;"><i class="bi bi-exclamation-triangle"></i> Zone de danger</h3>
+        </div>
+        <div class="admin-card-body">
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                La suppression de cet utilisateur est irréversible.
+            </p>
+            {{ include('back/user/_delete_form.html.twig') }}
+        </div>
+    </div>
+{% endblock content %}

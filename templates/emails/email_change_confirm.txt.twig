@@ -1,0 +1,7 @@
+Bonjour{% if pseudonym %} {{ pseudonym }}{% endif %},
+
+Nous avons bien pris en compte le changement d'adresse email de votre compte Auparavant. Confirmez que vous en êtes bien l'auteur en ouvrant ce lien :
+
+{{ url }}
+
+Ce lien est valable {{ expiresInHours }} heures et ne peut servir qu'une fois. Tant que vous ne l'avez pas ouvert, votre ancienne adresse reste celle de votre compte. Si vous n'êtes pas à l'origine de ce changement, ignorez ce message.

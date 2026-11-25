@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mot de passe oublié — Auparavant Admin{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="{{ asset('css/pictures/appareilphotovintage.png') }}" alt="Auparavant" class="auth-logo">
+                <h1>Mot de passe oublié ?</h1>
+                <p>Pas de panique, ça arrive !</p>
+            </div>
+            
+            <div class="auth-body">
+                {% for flash_error in app.flashes('reset_password_error') %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        {{ flash_error }}
+                    </div>
+                {% endfor %}
+                
+                {{ form_start(requestForm) }}
+                    <div class="form-group">
+                        {{ form_label(requestForm.email) }}
+                        {{ form_widget(requestForm.email) }}
+                        {{ form_errors(requestForm.email) }}
+                        <small class="form-text">
+                            <i class="bi bi-info-circle"></i>
+                            Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+                        <i class="bi bi-envelope"></i>
+                        Envoyer le lien
+                    </button>
+                {{ form_end(requestForm) }}
+            </div>
+            
+            <div class="auth-footer">
+                <p><a href="{{ path('app_login') }}"><i class="bi bi-arrow-left"></i> Retour à la connexion</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

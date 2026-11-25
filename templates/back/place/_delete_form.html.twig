@@ -1,0 +1,7 @@
+<form method="post" action="{{ path('app_place_delete', {'id': place.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce lieu ? Cette action est irréversible.');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ place.id) }}">
+    <button type="submit" class="btn btn-danger">
+        <i class="bi bi-trash"></i>
+        Supprimer ce lieu
+    </button>
+</form>

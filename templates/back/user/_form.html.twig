@@ -1,0 +1,43 @@
+{{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+    <div class="form-section">
+        <h4 class="form-section-title">
+            <i class="bi bi-person"></i>
+            Informations personnelles
+        </h4>
+        
+        {{ form_row(form.pseudonym) }}
+        
+        {{ form_row(form.email) }}
+    </div>
+    
+    {% if form.password is defined %}
+    <div class="form-section">
+        <h4 class="form-section-title">
+            <i class="bi bi-shield-lock"></i>
+            Sécurité
+        </h4>
+        
+        {{ form_row(form.password) }}
+    </div>
+    {% endif %}
+    
+    <div class="form-section">
+        <h4 class="form-section-title">
+            <i class="bi bi-key"></i>
+            Permissions
+        </h4>
+        
+        {{ form_row(form.roles) }}
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle"></i>
+            {{ button_label|default('Enregistrer') }}
+        </button>
+        <a href="{{ path('app_user_index') }}" class="btn btn-secondary">
+            <i class="bi bi-x-circle"></i>
+            Annuler
+        </a>
+    </div>
+{{ form_end(form) }}

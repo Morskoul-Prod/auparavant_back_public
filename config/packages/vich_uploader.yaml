@@ -1,0 +1,19 @@
+vich_uploader:
+    db_driver: orm
+
+    mappings:
+        # Configuration pour les images de souvenirs (Memory/Picture)
+        memory_pictures:
+            uri_prefix: /uploads/memories
+            upload_destination: '%kernel.project_dir%/public/uploads/memories'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: false
+            delete_on_update: true
+            delete_on_remove: true
+
+when@test:
+    vich_uploader:
+        mappings:
+            memory_pictures:
+                # Les tests n'écrivent pas dans public/uploads
+                upload_destination: '%kernel.project_dir%/var/test-uploads'

@@ -1,0 +1,4 @@
+# Active la protection CSRF sans état pour les formulaires, connexions et déconnexions
+framework:
+    csrf_protection:
+        check_header: true

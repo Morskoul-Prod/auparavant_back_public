@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="fr">
+<body style="margin:0;padding:24px;background:#f6f1e9;font-family:Arial,Helvetica,sans-serif;color:#2b2118;">
+  <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;padding:32px;">
+    <h1 style="font-size:20px;margin:0 0 16px;">Votre nouvelle adresse email</h1>
+    <p>Bonjour{% if pseudonym %} {{ pseudonym }}{% endif %},</p>
+    <p>Nous avons bien pris en compte le changement d'adresse email de votre compte Auparavant. Confirmez que vous en êtes bien l'auteur en cliquant sur le bouton ci-dessous.</p>
+    <p style="margin:28px 0;">
+      <a href="{{ url }}" style="background:#b9722f;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:8px;display:inline-block;">Confirmer ma nouvelle adresse</a>
+    </p>
+    <p style="font-size:14px;color:#6b5d4f;">Ce lien est valable {{ expiresInHours }} heures et ne peut servir qu'une fois. Tant que vous ne l'avez pas ouvert, votre ancienne adresse reste celle de votre compte. Si vous n'êtes pas à l'origine de ce changement, ignorez ce message.</p>
+    <p style="font-size:12px;color:#8a7c6d;word-break:break-all;">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>{{ url }}</p>
+  </div>
+</body>
+</html>

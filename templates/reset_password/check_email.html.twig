@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérifiez votre email — Auparavant Admin{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="{{ asset('css/pictures/appareilphotovintage.png') }}" alt="Auparavant" class="auth-logo">
+                <h1>Email envoyé !</h1>
+                <p>Vérifiez votre boîte de réception</p>
+            </div>
+            
+            <div class="auth-body">
+                <div class="alert alert-success">
+                    <i class="bi bi-envelope-check"></i>
+                    <div>
+                        Si un compte existe avec cette adresse email, un email a été envoyé avec un lien pour réinitialiser votre mot de passe.
+                        <br><br>
+                        <small>Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</small>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Vous n'avez pas reçu l'email ?</p>
+                    <a href="{{ path('app_forgot_password_request') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-repeat"></i>
+                        Renvoyer l'email
+                    </a>
+                </div>
+            </div>
+            
+            <div class="auth-footer">
+                <p><a href="{{ path('app_login') }}"><i class="bi bi-arrow-left"></i> Retour à la connexion</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

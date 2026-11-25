@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Images — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-images"></i>
+                Images
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Images</span>
+            </div>
+        </div>
+        <a href="{{ path('app_picture_new') }}" class="btn-add">
+            <i class="bi bi-plus-lg"></i>
+            Nouvelle image
+        </a>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-list-ul"></i> Bibliothèque d'images</h3>
+            <span class="badge badge-primary">{{ pictures|length }} image(s)</span>
+        </div>
+        <div class="admin-card-body" style="padding: 0;">
+            {% if pictures is not empty %}
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th>Aperçu</th>
+                            <th>Nom du fichier</th>
+                            <th>Souvenir associé</th>
+                            <th>Statut</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for picture in pictures %}
+                            <tr>
+                                <td><span class="badge badge-primary">#{{ picture.id }}</span></td>
+                                <td>
+                                    {% if picture.imageName %}
+                                        <img src="{{ picture.imageUrl }}" class="img-thumbnail" alt="Photo">
+                                    {% else %}
+                                        <div class="img-thumbnail" style="display: flex; align-items: center; justify-content: center; background: var(--bg-input);">
+                                            <i class="bi bi-image" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <code style="color: var(--accent); font-size: 0.8rem;">{{ picture.imageName|default('—') }}</code>
+                                </td>
+                                <td>
+                                    {% if picture.memory %}
+                                        <a href="{{ path('app_memory_show', {'id': picture.memory.id}) }}" style="color: var(--accent);">
+                                            <i class="bi bi-camera-reels"></i>
+                                            {{ picture.memory.title|default('Souvenir #' ~ picture.memory.id) }}
+                                        </a>
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">Non associée</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ picture.status.value == 'approved' ? 'success' : (picture.status.value == 'pending' ? 'warning' : 'danger') }}">{{ picture.status.label }}</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_picture_show', {'id': picture.id}) }}" class="btn btn-icon btn-secondary" title="Voir">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_picture_edit', {'id': picture.id}) }}" class="btn btn-icon btn-warning" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-images"></i>
+                    <h4>Aucune image</h4>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

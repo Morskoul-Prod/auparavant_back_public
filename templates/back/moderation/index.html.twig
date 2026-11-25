@@ -1,0 +1,140 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modération — Auparavant Admin{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/compare-slider.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/compare-slider.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-shield-check"></i>
+                Modération des photos
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Modération</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-hourglass-split"></i> Photos actuelles proposées</h3>
+            <span class="badge badge-warning">{{ pictures|length }} en attente</span>
+        </div>
+        <div class="admin-card-body" style="padding: 0;">
+            {% if pictures is not empty %}
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th>Aperçu / comparaison</th>
+                            <th>Souvenir</th>
+                            <th>Proposée par</th>
+                            <th>Crédit</th>
+                            <th>Date</th>
+                            <th style="width: 380px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for picture in pictures %}
+                            <tr>
+                                <td><span class="badge badge-primary">#{{ picture.id }}</span></td>
+                                <td>
+                                    {% set olderPictures = picture.memory ? picture.memory.approvedOlderPictures : [] %}
+                                    {# Photo « avant » suggérée par le proposant : comparée en premier #}
+                                    {% set suggested = picture.suggestedBefore %}
+                                    {% if picture.imageName and olderPictures is not empty %}
+                                        <div class="compare" data-compare tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+                                             aria-label="Comparer la photo ancienne et la photo proposée (flèches gauche/droite)">
+                                            <img class="compare__img" data-compare-before src="{{ (suggested ?: olderPictures[0]).imageUrl }}" alt="Photo ancienne du souvenir" draggable="false">
+                                            <img class="compare__img compare__img--top" src="{{ picture.imageUrl }}" alt="Photo proposée" draggable="false">
+                                            <span class="compare__label compare__label--before">Avant</span>
+                                            <span class="compare__label compare__label--after">Proposée</span>
+                                            <div class="compare__handle"></div>
+                                        </div>
+                                        <div class="compare-tools">
+                                            <a href="{{ picture.imageUrl }}" target="_blank" rel="noopener" style="color: var(--accent);">
+                                                <i class="bi bi-arrows-fullscreen"></i> Voir en grand
+                                            </a>
+                                            {% if olderPictures|length > 1 %}
+                                                <select data-compare-select aria-label="Photo ancienne à comparer">
+                                                    {% for older in olderPictures %}
+                                                        <option value="{{ older.imageUrl }}"{{ suggested and older.id == suggested.id ? ' selected' }}>Photo {{ loop.index }}{{ suggested and older.id == suggested.id ? ' (suggérée)' }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            {% endif %}
+                                        </div>
+                                        {% if suggested %}
+                                            <div class="compare-tools" style="margin-top: .5rem;">
+                                                <i class="bi bi-lightbulb"></i>
+                                                Photo « avant » suggérée par le proposant : elle deviendra la photo « avant » du souvenir à l'approbation (si le souvenir n'en a toujours pas).
+                                            </div>
+                                        {% endif %}
+                                    {% elseif picture.imageName %}
+                                        <a href="{{ picture.imageUrl }}" target="_blank" rel="noopener">
+                                            <img src="{{ picture.imageUrl }}" class="img-thumbnail" alt="Photo proposée">
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if picture.memory %}
+                                        <a href="{{ path('app_memory_show', {'id': picture.memory.id}) }}" style="color: var(--accent);">
+                                            <i class="bi bi-camera-reels"></i>
+                                            {{ picture.memory.title|default('Souvenir #' ~ picture.memory.id) }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if picture.uploadedBy %}
+                                        {{ picture.uploadedBy.pseudonym }}
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">Inconnu</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ picture.copyrightHolder|default('—') }}</td>
+                                <td>{{ picture.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <form method="post" action="{{ path('app_moderation_approve', {'id': picture.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('approve' ~ picture.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="bi bi-check-lg"></i> Approuver
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{{ path('app_moderation_reject', {'id': picture.id}) }}" style="display: flex; flex-direction: column; gap: 4px;" onsubmit="return confirm('Rejeter cette photo ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ picture.id) }}">
+                                            <select name="reason" style="width: 100%;" required aria-label="Motif du refus">
+                                                <option value="">Motif du refus…</option>
+                                                {% for reason in rejectionReasons %}
+                                                    <option value="{{ reason.value }}">{{ reason.label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <textarea name="details" rows="3" style="width: 100%; resize: vertical;" maxlength="200" placeholder="Précisions (obligatoires si « Autre »)" aria-label="Précisions sur le refus"></textarea>
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-x-lg"></i> Rejeter
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-check2-circle"></i>
+                    <h4>Aucune photo en attente</h4>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,11 @@
+framework:
+    validation:
+        # Active le mapping automatique du validateur.
+        # Par exemple, les contraintes de validation de base sont déduites des métadonnées de Doctrine.
+        #auto_mapping:
+        #    App\Entity\: []
+
+when@test:
+    framework:
+        validation:
+            not_compromised_password: false

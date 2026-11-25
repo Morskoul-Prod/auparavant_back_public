@@ -1,0 +1,11 @@
+# Active la protection CSRF sans état pour les formulaires, connexions et déconnexions
+framework:
+    form:
+        csrf_protection:
+            token_id: submit
+
+    csrf_protection:
+        stateless_token_ids:
+            - submit
+            - authenticate
+            - logout

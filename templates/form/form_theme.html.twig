@@ -1,0 +1,123 @@
+{% use 'form_div_layout.html.twig' %}
+
+{# === FORM ROW === #}
+{% block form_row %}
+    <div class="form-group{% if not valid %} has-error{% endif %}">
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+        {{ form_help(form) }}
+        {{ form_errors(form) }}
+    </div>
+{% endblock %}
+
+{# === LABELS === #}
+{% block form_label %}
+    {% if label is not same as(false) %}
+        {% if not compound %}
+            {% set label_attr = label_attr|merge({'for': id}) %}
+        {% endif %}
+        {% if required %}
+            {% set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' required')|trim}) %}
+        {% endif %}
+        {% if label is empty %}
+            {% if label_format is not empty %}
+                {% set label = label_format|replace({
+                    '%name%': name,
+                    '%id%': id,
+                }) %}
+            {% else %}
+                {% set label = name|humanize %}
+            {% endif %}
+        {% endif %}
+        <label{% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
+            {{ translation_domain is same as(false) ? label : label }}
+        </label>
+    {% endif %}
+{% endblock %}
+
+{# === TEXT INPUT === #}
+{% block form_widget_simple %}
+    {% if type is not defined or type not in ['file', 'hidden'] %}
+        {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+    {% endif %}
+    {{ parent() }}
+{% endblock %}
+
+{# === TEXTAREA === #}
+{% block textarea_widget %}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+    {{ parent() }}
+{% endblock %}
+
+{# === SELECT === #}
+{% block choice_widget_collapsed %}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+    {{ parent() }}
+{% endblock %}
+
+{# === CHECKBOX EXPANDED (multiple checkboxes) === #}
+{% block choice_widget_expanded %}
+    <div {{ block('widget_container_attributes') }} class="form-check-group">
+        {% for child in form %}
+            <div class="form-check-item">
+                {{ form_widget(child) }}
+                {{ form_label(child, null, {translation_domain: choice_translation_domain}) }}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{# === SINGLE CHECKBOX === #}
+{% block checkbox_widget %}
+    <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+{% endblock %}
+
+{# === FORM ERRORS === #}
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        <ul class="form-errors">
+            {% for error in errors %}
+                <li><i class="bi bi-exclamation-circle"></i> {{ error.message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+
+{# === HELP TEXT === #}
+{% block form_help %}
+    {% if help is not empty %}
+        {% set help_attr = help_attr|merge({class: (help_attr.class|default('') ~ ' form-text')|trim}) %}
+        <small{% for attrname, attrvalue in help_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
+            {{ translation_domain is same as(false) ? help : help }}
+        </small>
+    {% endif %}
+{% endblock %}
+
+{# === FILE INPUT === #}
+{% block file_widget %}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+    <input type="file" {{ block('widget_attributes') }}{% if multiple is defined and multiple %} multiple="multiple"{% endif %} />
+{% endblock %}
+
+{# === DATE INPUT === #}
+{% block date_widget %}
+    {% if widget == 'single_text' %}
+        {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+        {{ block('form_widget_simple') }}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{# === NUMBER INPUT === #}
+{% block number_widget %}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+    {{ parent() }}
+{% endblock %}
+
+{# === INTEGER INPUT === #}
+{% block integer_widget %}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+    {{ parent() }}
+{% endblock %}
+

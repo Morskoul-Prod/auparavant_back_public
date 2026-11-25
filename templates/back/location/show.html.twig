@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ location.city }}
+	— Auparavant Admin
+{% endblock %}
+
+{% block content %}
+	<div class="page-header">
+		<div>
+			<h1 class="page-title">
+				<i class="bi bi-geo-alt"></i>
+				{{ location.city|default('Localisation #' ~ location.id) }}
+			</h1>
+			<div class="breadcrumb">
+				<a href="{{ path('app_main') }}">Accueil</a>
+				<i class="bi bi-chevron-right"></i>
+				<a href="{{ path('app_location_index') }}">Localisations</a>
+				<i class="bi bi-chevron-right"></i>
+				<span>#{{ location.id }}</span>
+			</div>
+		</div>
+		<div class="action-buttons">
+			<a href="{{ path('app_location_edit', {'id': location.id}) }}" class="btn btn-warning">
+				<i class="bi bi-pencil"></i>
+				Modifier
+			</a>
+			<a href="{{ path('app_location_index') }}" class="btn btn-secondary">
+				<i class="bi bi-arrow-left"></i>
+				Retour
+			</a>
+		</div>
+	</div>
+
+	<div class="admin-card">
+		<div class="admin-card-header">
+			<h3>
+				<i class="bi bi-info-circle"></i>
+				Informations</h3>
+		</div>
+		<div class="admin-card-body">
+			<table class="admin-table" style="margin: -1.5rem;">
+				<tbody>
+					<tr>
+						<th style="width: 150px;">ID</th>
+						<td>
+							<span class="badge badge-primary">#{{ location.id }}</span>
+						</td>
+					</tr>
+					<tr>
+						<th>Rue</th>
+						<td>{{ location.street|default('—') }}</td>
+					</tr>
+					<tr>
+						<th>Code postal</th>
+						<td>
+							<span class="badge badge-info">{{ location.zipcode|default('—') }}</span>
+						</td>
+					</tr>
+					<tr>
+						<th>Ville</th>
+						<td>
+							<strong>{{ location.city|default('—') }}</strong>
+						</td>
+					</tr>
+					<tr>
+						<th>Arrondissement</th>
+						<td>{{ location.district|default('—') }}</td>
+					</tr>
+					<tr>
+						<th>Département</th>
+						<td>{{ location.department|default('—') }}</td>
+					</tr>
+					<tr>
+						<th>Région</th>
+						<td>{{ location.area|default('—') }}</td>
+					</tr>
+					<tr>
+						<th>Latitude</th>
+						<td>{{ location.latitude|default('—') }}</td>
+					</tr>
+					<tr>
+						<th>Longitude</th>
+						<td>{{ location.longitude|default('—') }}</td>
+					</tr>
+					<tr>
+						<th>Identifiant d'adresse</th>
+						<td>{{ location.addressId|default('—') }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Zone des souvenirs -->
+	<div class="admin-card mt-3" style="border-color: rgba(139, 81, 0, 0.3);">
+		<div class="admin-card-header" style="background: rgba(139, 100, 0, 0.1);">
+			<h3>
+				<i class="bi bi-journal-text"></i>
+				Souvenirs associés
+			</h3>
+		</div>
+		<div class="admin-card-body">
+			{% for memory in location.memories %}
+				<a href="{{ path('app_memory_show', {'id': memory.id}) }}" target="_blank">#{{memory.id}}-{{ memory.title }}</a>
+			{% else %}
+				<p>Aucun souvenir.</p>
+			{% endfor %}
+		</div>
+	</div>
+
+	<!-- Zone de danger -->
+	<div class="admin-card mt-3" style="border-color: rgba(139, 0, 0, 0.3);">
+		<div class="admin-card-header" style="background: rgba(139, 0, 0, 0.1);">
+			<h3 style="color: #CD5C5C;">
+				<i class="bi bi-exclamation-triangle"></i>
+				Zone de danger</h3>
+		</div>
+		<div class="admin-card-body">
+			<p style="color: var(--text-secondary); margin-bottom: 1rem;">
+				La suppression de cette localisation est irréversible.
+			</p>
+			{{ include('back/location/_delete_form.html.twig') }}
+		</div>
+	</div>
+{% endblock content %}

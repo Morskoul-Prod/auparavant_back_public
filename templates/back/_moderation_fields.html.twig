@@ -1,0 +1,3 @@
+{# Objet et message facultatifs adressés à l'auteur du contenu retiré, toujours visibles. Paramètres : reason (objet pré-rempli), key (suffixe d'identifiant unique) #}
+<input type="text" name="reason" id="reason-{{ key }}" style="width: 100%; margin-bottom: 4px;" maxlength="200" value="{{ reason|default('') }}" placeholder="Objet (facultatif)" aria-label="Objet du message à l'auteur">
+<textarea name="message" id="message-{{ key }}" rows="3" style="width: 100%; resize: vertical; margin-bottom: 4px;" maxlength="500" placeholder="Message à l'auteur (facultatif)" aria-label="Message à l'auteur"></textarea>

@@ -1,0 +1,11 @@
+Bonjour{% if pseudonym %} {{ pseudonym }}{% endif %},
+
+Le {{ changedAt }}, l'adresse email de votre compte Auparavant est passée de {{ oldEmail }} à {{ newEmailMasked }}.
+
+Si c'est bien vous, vous n'avez rien à faire : connectez-vous désormais avec la nouvelle adresse.
+
+Si ce n'est PAS vous, quelqu'un d'autre a pris la main sur votre compte. Rétablissez votre adresse tout de suite :
+
+{{ url }}
+
+Ce lien est valable {{ expiresInDays }} jours et ne peut servir qu'une fois. Il rétablit votre ancienne adresse, ferme toutes les sessions, invalide votre mot de passe et vous envoie un lien pour en choisir un nouveau.

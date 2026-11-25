@@ -1,0 +1,144 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord — Auparavant Admin{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-grid-1x2"></i>
+                Tableau de bord
+            </h1>
+            <div class="breadcrumb">
+                <a href="{{ path('app_main') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Dashboard</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        {% if is_granted('ROLE_MODERATOR') %}
+        {% set pendingCount = pending_moderation_count() %}
+        <a href="{{ path('app_moderation_index') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-icon moderation">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="stat-info">
+                <h4>
+                    Modération
+                    <span class="nav-badge js-moderation-badge" data-url="{{ path('app_moderation_count') }}"{% if pendingCount == 0 %} hidden{% endif %}>{{ pendingCount }}</span>
+                </h4>
+                <p>Photos proposées à valider</p>
+            </div>
+        </a>
+        <a href="{{ path('app_report_index') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-icon moderation">
+                <i class="bi bi-flag"></i>
+            </div>
+            <div class="stat-info">
+                <h4>
+                    Signalements
+                    {% set openReports = open_reports_count() %}
+                    {% if openReports > 0 %}<span class="nav-badge">{{ openReports }}</span>{% endif %}
+                </h4>
+                <p>Contenus signalés à traiter</p>
+            </div>
+        </a>
+        {% endif %}
+
+        {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_memory_index') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-icon memories">
+                <i class="bi bi-camera-reels"></i>
+            </div>
+            <div class="stat-info">
+                <h4>Souvenirs</h4>
+                <p>Gérer les souvenirs partagés</p>
+            </div>
+        </a>
+        
+        <a href="{{ path('app_picture_index') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-icon pictures">
+                <i class="bi bi-images"></i>
+            </div>
+            <div class="stat-info">
+                <h4>Images</h4>
+                <p>Bibliothèque de photos</p>
+            </div>
+        </a>
+        
+        <a href="{{ path('app_location_index') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-icon locations">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <div class="stat-info">
+                <h4>Localisations</h4>
+                <p>Adresses et coordonnées</p>
+            </div>
+        </a>
+        
+        <a href="{{ path('app_place_index') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-icon places">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="stat-info">
+                <h4>Lieux</h4>
+                <p>Points d'intérêt</p>
+            </div>
+        </a>
+        
+        <a href="{{ path('app_user_index') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-icon users">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-info">
+                <h4>Utilisateurs</h4>
+                <p>Gestion des comptes</p>
+            </div>
+        </a>
+        {% endif %}
+    </div>
+    
+    {% if is_granted('ROLE_ADMIN') %}
+    <!-- Quick Actions -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="bi bi-lightning"></i> Actions rapides</h3>
+        </div>
+        <div class="admin-card-body">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ path('app_memory_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i>
+                    Nouveau souvenir
+                </a>
+                <a href="{{ path('app_location_new') }}" class="btn btn-secondary">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Nouvelle localisation
+                </a>
+                <a href="{{ path('app_place_new') }}" class="btn btn-secondary">
+                    <i class="bi bi-building"></i>
+                    Nouveau lieu
+                </a>
+                <a href="{{ path('app_user_new') }}" class="btn btn-secondary">
+                    <i class="bi bi-person-plus"></i>
+                    Nouvel utilisateur
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Welcome Message -->
+    <div class="admin-card mt-3">
+        <div class="admin-card-body text-center" style="padding: 3rem;">
+            <i class="bi bi-camera-reels" style="font-size: 4rem; color: var(--accent); opacity: 0.5;"></i>
+            <h3 class="mt-2">Bienvenue sur Auparavant Admin</h3>
+            <p style="color: var(--text-secondary); max-width: 500px; margin: 1rem auto;">
+                Cette interface vous permet de gérer tous les contenus de l'application Auparavant : 
+                souvenirs, photos, localisations et utilisateurs.
+            </p>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,52 @@
+{{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+    <div class="form-section">
+        <h4 class="form-section-title">
+            <i class="bi bi-geo-alt"></i>
+            Adresse
+        </h4>
+        
+        {{ form_row(form.street) }}
+        
+        <div class="form-row">
+            {{ form_row(form.zipcode) }}
+            {{ form_row(form.city) }}
+        </div>
+        
+        {{ form_row(form.district) }}
+    </div>
+    
+    <div class="form-section">
+        <h4 class="form-section-title">
+            <i class="bi bi-map"></i>
+            Région
+        </h4>
+        
+        <div class="form-row">
+            {{ form_row(form.department) }}
+            {{ form_row(form.area) }}
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <h4 class="form-section-title">
+            <i class="bi bi-pin-map"></i>
+            Coordonnées GPS
+        </h4>
+        
+        <div class="form-row">
+            {{ form_row(form.latitude) }}
+            {{ form_row(form.longitude) }}
+        </div>
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle"></i>
+            {{ button_label|default('Enregistrer') }}
+        </button>
+        <a href="{{ path('app_location_index') }}" class="btn btn-secondary">
+            <i class="bi bi-x-circle"></i>
+            Annuler
+        </a>
+    </div>
+{{ form_end(form) }}
